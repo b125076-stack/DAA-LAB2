@@ -1,97 +1,80 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 
-#define MAX 100000
+int binarySearch(int arr[], int n, int x) {
+    int low = 0, high = n - 1, steps = 0;
 
-long long linearSearch(int n)
-{
-    long long operations = 0;
-
-    for (int i = 0; i < n; i++)
-        operations++;
-
-    return operations;
-}
-
-long long binarySearch(int n)
-{
-    long long operations = 0;
-    int low = 0, high = n - 1;
-
-    while (low <= high)
-    {
+    while (low <= high) {
+        steps++;
         int mid = (low + high) / 2;
-        operations++;
 
-        if (mid < n - 1)
-            low = mid + 1;
+        if (arr[mid] == x) {
+            printf("Binary Search: Found at index %d\n", mid);
+            printf("Binary Search Steps: %d\n", steps);
+            return 1;
+        }
+
+        if (x < arr[mid])
+            high = mid - 1;
         else
-            break;
+            low = mid + 1;
     }
 
-    return operations;
+    printf("Binary Search: Not Found\n");
+    printf("Binary Search Steps: %d\n", steps);
+    return 0;
 }
 
-long long constantOperation()
-{
-    return 1;
+int ternarySearch(int arr[], int n, int x) {
+    int low = 0, high = n - 1, steps = 0;
+
+    while (low <= high) {
+        steps++;
+        int mid1 = low + (high - low) / 3;
+        int mid2 = high - (high - low) / 3;
+
+        if (arr[mid1] == x) {
+            printf("Ternary Search: Found at index %d\n", mid1);
+            printf("Ternary Search Steps: %d\n", steps);
+            return 1;
+        }
+
+        if (arr[mid2] == x) {
+            printf("Ternary Search: Found at index %d\n", mid2);
+            printf("Ternary Search Steps: %d\n", steps);
+            return 1;
+        }
+
+        if (x < arr[mid1])
+            high = mid1 - 1;
+        else if (x > arr[mid2])
+            low = mid2 + 1;
+        else {
+            low = mid1 + 1;
+            high = mid2 - 1;
+        }
+    }
+
+    printf("Ternary Search: Not Found\n");
+    printf("Ternary Search Steps: %d\n", steps);
+    return 0;
 }
 
-long long quadraticOperation(int n)
-{
-    long long operations = 0;
+int main() {
+    int n, x;
 
+    printf("Enter number of elements: ");
+    scanf("%d", &n);
+
+    int arr[n];
+    printf("Enter sorted elements:\n");
     for (int i = 0; i < n; i++)
-        operations++;
+        scanf("%d", &arr[i]);
 
-    return operations;
-}
+    printf("Enter element to search: ");
+    scanf("%d", &x);
 
-int main()
-{
-    FILE *fp;
-    fp = fopen("growth.csv", "w");
-
-    if (fp == NULL)
-    {
-        printf("Error opening file!\n");
-        return 1;
-    }
-
-    fprintf(fp,
-        "n,UnsortedSearch,SortedSearch,InsertDeleteLinear,Constant\n");
-
-    int values[] = {
-        10, 100, 500, 1000, 5000,
-        10000, 20000, 50000, 100000
-    };
-
-    int count = sizeof(values) / sizeof(values[0]);
-
-    for (int i = 0; i < count; i++)
-    {
-        int n = values[i];
-
-        long long unsortedSearch = linearSearch(n);
-        long long sortedSearch = binarySearch(n);
-
-        
-        long long linear = quadraticOperation(n);
-
-        long long constant = constantOperation();
-
-        fprintf(fp, "%d,%lld,%lld,%lld,%lld\n",
-                n,
-                unsortedSearch,
-                sortedSearch,
-                linear,
-                constant);
-    }
-
-    fclose(fp);
-
-    printf("Growth data successfully written to growth.csv\n");
+    binarySearch(arr, n, x);
+    ternarySearch(arr, n, x);
 
     return 0;
 }
