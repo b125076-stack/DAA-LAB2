@@ -1,67 +1,97 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
-typedef struct {
-    int max;
-    int min;
-} MaxMin;
-
-MaxMin findMaxMin(int a[], int low, int high) {
-    MaxMin result, left, right;
-    int mid;
-
-    if (low == high) {
-        result.max = a[low];
-        result.min = a[low];
-        return result;
-    }
-
-    if (high == low + 1) {
-        if (a[low] > a[high]) {
-            result.max = a[low];
-            result.min = a[high];
-        } else {
-            result.max = a[high];
-            result.min = a[low];
-        }
-        return result;
-    }
-
-  
-    mid = low + (high - low) / 2;
-
-    left = findMaxMin(a, low, mid);
-    right = findMaxMin(a, mid + 1, high);
-
-
-    result.max = (left.max > right.max) ? left.max : right.max;
-    result.min = (left.min < right.min) ? left.min : right.min;
-
-    return result;
+void swap(int *a, int *b)
+{
+    int temp = *a;
+    *a = *b;
+    *b = temp;
 }
 
-int main() {
-    int n, i;
-    MaxMin answer;
+int partition(int a[], int low, int high)
+{
+    int pivot = a[high];
+    int i = low - 1;
 
-    printf("Enter the number of elements: ");
-    scanf("%d", &n);
-
-    if (n <= 0) {
-        printf("Array size must be positive.\n");
-        return 1;
+    for (int j = low; j < high; j++)
+    {
+        if (a[j] <= pivot)
+        {
+            i++;
+            swap(&a[i], &a[j]);
+        }
     }
+
+    swap(&a[i + 1], &a[high]);
+
+    return i + 1;
+}
+
+void quickSort(int a[], int low, int high)
+{
+    if (low < high)
+    {
+        int p = partition(a, low, high);
+
+        quickSort(a, low, p - 1);
+        quickSort(a, p + 1, high);
+    }
+}
+
+int main()
+{
+    int n;
+
+    printf("Enter number of elements: ");
+    scanf("%d", &n);
 
     int a[n];
 
-    printf("Enter the array elements:\n");
-    for (i = 0; i < n; i++) {
-        scanf("%d", &a[i]);
+    FILE *fp;
+
+    srand(time(NULL));
+
+    fp = fopen("random.txt", "w");
+
+    if (fp == NULL)
+    {
+        printf("File cannot be opened.\n");
+        return 1;
     }
 
-    answer = findMaxMin(a, 0, n - 1);
+    printf("Random elements:\n");
 
-    printf("\nMaximum element = %d\n", answer.max);
-    printf("Minimum element = %d\n", answer.min);
+    for (int i = 0; i < n; i++)
+    {
+        a[i] = rand() % 1000;
+
+        fprintf(fp, "%d ", a[i]);
+
+        printf("%d ", a[i]);
+    }
+
+    fclose(fp);
+
+    fp = fopen("random.txt", "r");
+
+    if (fp == NULL)
+    {
+        printf("File cannot be opened.\n");
+        return 1;
+    }
+
+    for (int i = 0; i < n; i++)
+        fscanf(fp, "%d", &a[i]);
+
+    fclose(fp);
+
+    quickSort(a, 0, n - 1);
+
+    printf("\n\nSorted elements:\n");
+
+    for (int i = 0; i < n; i++)
+        printf("%d ", a[i]);
 
     return 0;
 }

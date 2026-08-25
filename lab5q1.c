@@ -36,15 +36,16 @@ int quickSelect(int a[], int low, int high, int k)
     if (p == k)
         return a[p];
 
-    if (k < p)
+    else if (k < p)
         return quickSelect(a, low, p - 1, k);
 
-    return quickSelect(a, p + 1, high, k);
+    else
+        return quickSelect(a, p + 1, high, k);
 }
 
 int main()
 {
-    int n, k;
+    int n;
 
     printf("Enter number of elements: ");
     scanf("%d", &n);
@@ -56,18 +57,21 @@ int main()
     for (int i = 0; i < n; i++)
         scanf("%d", &a[i]);
 
-    printf("Enter K: ");
-    scanf("%d", &k);
-
-    if (k < 1 || k > n)
+    if (n % 2 != 0)
     {
-        printf("Invalid K\n");
-        return 0;
+        int median = quickSelect(a, 0, n - 1, n / 2);
+
+        printf("Median = %d\n", median);
     }
+    else
+    {
+        int m1 = quickSelect(a, 0, n - 1, n / 2 - 1);
+        int m2 = quickSelect(a, 0, n - 1, n / 2);
 
-    int answer = quickSelect(a, 0, n - 1, k - 1);
+        float median = (m1 + m2) / 2.0;
 
-    printf("%dth smallest element = %d\n", k, answer);
+        printf("Median = %.2f\n", median);
+    }
 
     return 0;
 }
