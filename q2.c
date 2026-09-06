@@ -1,94 +1,60 @@
 #include <stdio.h>
-#include <math.h>
 
-#define MAX 50
-
-void add(int a[MAX][MAX], int b[MAX][MAX], int c[MAX][MAX], int n) {
-    int i, j;
-    for(i = 0; i < n; i++)
-        for(j = 0; j < n; j++)
-            c[i][j] = a[i][j] + b[i][j];
+int max(int a, int b)
+{
+    return (a > b) ? a : b;
 }
 
-void multiply(int a[MAX][MAX], int b[MAX][MAX], int c[MAX][MAX], int n) {
-    int i, j, k;
-    for(i = 0; i < n; i++) {
-        for(j = 0; j < n; j++) {
-            c[i][j] = 0;
-            for(k = 0; k < n; k++)
-                c[i][j] += a[i][k] * b[k][j];
-        }
-    }
-}
+int main()
+{
+    int n, W;
 
-int isZeroMatrix(int a[MAX][MAX], int n) {
-    int i, j;
-    for(i = 0; i < n; i++)
-        for(j = 0; j < n; j++)
-            if(a[i][j] != 0) return 0;
-    return 1;
-}
-
-int isSymmetric(int a[MAX][MAX], int n) {
-    int i, j;
-    for(i = 0; i < n; i++)
-        for(j = i + 1; j < n; j++)
-            if(a[i][j] != a[j][i]) return 0;
-    return 1;
-}
-
-void transposeInPlace(int a[MAX][MAX], int n) {
-    int i, j, t;
-    for(i = 0; i < n; i++) {
-        for(j = i + 1; j < n; j++) {
-            t = a[i][j];
-            a[i][j] = a[j][i];
-            a[j][i] = t;
-        }
-    }
-}
-
-
-void printMatrix(int a[MAX][MAX], int n) {
-    int i, j;
-    for(i = 0; i < n; i++) {
-        for(j = 0; j < n; j++)
-            printf("%d ", a[i][j]);
-        printf("\n");
-    }
-}
-
-int main() {
-    int n, i, j;
-    int A[MAX][MAX], B[MAX][MAX], C[MAX][MAX];
-
-    printf("Enter n: ");
+    printf("Enter number of items: ");
     scanf("%d", &n);
 
-    printf("Enter matrix A (%d x %d):\n", n, n);
-    for(i = 0; i < n; i++)
-        for(j = 0; j < n; j++)
-            scanf("%d", &A[i][j]);
+    int weight[n];
+    int profit[n];
 
-    printf("Enter matrix B (%d x %d):\n", n, n);
-    for(i = 0; i < n; i++)
-        for(j = 0; j < n; j++)
-            scanf("%d", &B[i][j]);
+    printf("Enter weights:\n");
+    for (int i = 0; i < n; i++)
+    {
+        scanf("%d", &weight[i]);
+    }
 
-    add(A, B, C, n);
-    printf("\nA + B:\n");
-    printMatrix(C, n);
+    printf("Enter profits:\n");
+    for (int i = 0; i < n; i++)
+    {
+        scanf("%d", &profit[i]);
+    }
 
-    multiply(A, B, C, n);
-    printf("\nA * B:\n");
-    printMatrix(C, n);
+    printf("Enter capacity of knapsack: ");
+    scanf("%d", &W);
 
-    printf("\nA is %sa zero matrix\n", isZeroMatrix(A, n) ? "" : "not ");
-    printf("A is %ssymmetric\n", isSymmetric(A, n) ? "" : "not ");
+    int dp[n + 1][W + 1];
 
-    transposeInPlace(A, n);
-    printf("\nTranspose of A in place:\n");
-    printMatrix(A, n);
+    for (int i = 0; i <= n; i++)
+    {
+        for (int w = 0; w <= W; w++)
+        {
+            if (i == 0 || w == 0)
+            {
+                dp[i][w] = 0;
+            }
+            else if (weight[i - 1] <= w)
+            {
+                dp[i][w] = max(
+                    dp[i - 1][w],
+                    profit[i - 1] + dp[i - 1][w - weight[i - 1]]
+                );
+            }
+            else
+            {
+                dp[i][w] = dp[i - 1][w];
+            }
+        }
+    }
+
+    printf("Maximum Profit = %d\n", dp[n][W]);
 
     return 0;
 }
