@@ -1,79 +1,65 @@
-
 #include <stdio.h>
-#include <string.h>
 
-int max(int a, int b)
-{
-    return (a > b) ? a : b;
+#define MAX 200
+
+void reverse(int p[], int i, int j) {
+    int t;
+    while(i < j) {
+        t = p[i];
+        p[i] = p[j];
+        p[j] = t;
+        i++;
+        j--;
+    }
 }
 
-int main()
-{
-    char X[100], Y[100];
-    int m, n;
-    int i, j;
+void printArray(int p[], int n) {
+    int i;
+    for(i = 0; i < n; i++) printf("%d ", p[i]);
+    printf("\n");
+}
 
-    printf("Enter first string: ");
-    scanf("%s", X);
+void mergeByReversal(int p[], int l, int m, int r) {
+    int i = l;
+    while(i <= m && p[i] <= p[m + 1]) i++;
 
-    printf("Enter second string: ");
-    scanf("%s", Y);
+    if(i > m) return;
 
-    m = strlen(X);
-    n = strlen(Y);
+    int j = m + 1;
+    while(j <= r && p[j] < p[i]) j++;
 
-    int dp[m + 1][n + 1];
+    reverse(p, i, m);
+    reverse(p, m + 1, j - 1);
+    reverse(p, i, j - 1);
 
-    
-    for (i = 0; i <= m; i++)
-    {
-        for (j = 0; j <= n; j++)
-        {
-            if (i == 0 || j == 0)
-            {
-                dp[i][j] = 0;
-            }
-            else if (X[i - 1] == Y[j - 1])
-            {
-                dp[i][j] = dp[i - 1][j - 1] + 1;
-            }
-            else
-            {
-                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
-            }
-        }
+    if(i < j - 1) {
+        int leftSize = (i - l) + (j - 1 - (m + 1) + 1);
+        int newMid = l + leftSize - 1;
+        mergeByReversal(p, l, newMid, j - 1);
     }
+}
 
-    printf("\nLength of LCS = %d\n", dp[m][n]);
+void sortByReversal(int p[], int l, int r) {
+    if(l >= r) return;
+    int m = (l + r) / 2;
+    sortByReversal(p, l, m);
+    sortByReversal(p, m + 1, r);
+    mergeByReversal(p, l, m, r);
+}
 
-    int length = dp[m][n];
-    char lcs[length + 1];
+int main() {
+    int n, i, p[MAX];
 
-    lcs[length] = '\0';
+    printf("Enter n: ");
+    scanf("%d", &n);
 
-    i = m;
-    j = n;
+    printf("Enter permutation of 1 to %d:\n", n);
+    for(i = 0; i < n; i++) scanf("%d", &p[i]);
 
-    while (i > 0 && j > 0)
-    {
-        if (X[i - 1] == Y[j - 1])
-        {
-            lcs[length - 1] = X[i - 1];
-            i--;
-            j--;
-            length--;
-        }
-        else if (dp[i - 1][j] > dp[i][j - 1])
-        {
-            i--;
-        }
-        else
-        {
-            j--;
-        }
-    }
+    sortByReversal(p, 0, n - 1);
 
-    printf("Longest Common Subsequence = %s\n", lcs);
+    printf("Sorted array:\n");
+    printArray(p, n);
 
     return 0;
 }

@@ -1,104 +1,101 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#include <math.h>
+#include <complex.h>
 
-void swap(int *a, int *b)
-{
-    int temp = *a;
-    *a = *b;
-    *b = temp;
-}
+#define PI acos(-1.0)
 
-void heapify(int a[], int n, int i)
-{
-    int largest = i;
-    int left = 2 * i + 1;
-    int right = 2 * i + 2;
+void fft(double complex *a, int n, int invert) {
+    int i, j, len;
+    for(i = 1, j = 0; i < n; i++) {
+        int bit = n >> 1;
+        for(; j & bit; bit >>= 1) j ^= bit;
+        j ^= bit;
+        if(i < j) {
+            double complex t = a[i];
+            a[i] = a[j];
+            a[j] = t;
+        }
+    }
 
-    if (left < n && a[left] > a[largest])
-        largest = left;
+    for(len = 2; len <= n; len <<= 1) {
+        double ang = 2 * PI / len * (invert ? -1 : 1);
+        double complex wlen = cos(ang) + I * sin(ang);
+        for(i = 0; i < n; i += len) {
+            double complex w = 1;
+            for(j = 0; j < len / 2; j++) {
+                double complex u = a[i + j];
+                double complex v = a[i + j + len / 2] * w;
+                a[i + j] = u + v;
+                a[i + j + len / 2] = u - v;
+                w *= wlen;
+            }
+        }
+    }
 
-    if (right < n && a[right] > a[largest])
-        largest = right;
-
-    if (largest != i)
-    {
-        swap(&a[i], &a[largest]);
-
-        heapify(a, n, largest);
+    if(invert) {
+        for(i = 0; i < n; i++) a[i] /= n;
     }
 }
 
-void heapSort(int a[], int n)
-{
-    // Build Max Heap
-
-    for (int i = n / 2 - 1; i >= 0; i--)
-        heapify(a, n, i);
-
-    // Extract elements
-
-    for (int i = n - 1; i > 0; i--)
-    {
-        swap(&a[0], &a[i]);
-
-        heapify(a, i, 0);
-    }
+int nextPowerOfTwo(int x) {
+    int p = 1;
+    while(p < x) p <<= 1;
+    return p;
 }
 
-int main()
-{
-    int n;
+void convolution(int A[], int m, int B[], int n, int C[]) {
+    int size = nextPowerOfTwo(m + n - 1);
+    int i;
 
-    printf("Enter number of elements: ");
+    double complex *fa = (double complex*)calloc(size, sizeof(double complex));
+    double complex *fb = (double complex*)calloc(size, sizeof(double complex));
+
+    for(i = 0; i < m; i++) fa[i] = A[i];
+    for(i = 0; i < n; i++) fb[i] = B[i];
+
+    fft(fa, size, 0);
+    fft(fb, size, 0);
+
+    for(i = 0; i < size; i++) fa[i] *= fb[i];
+
+    fft(fa, size, 1);
+
+    for(i = 0; i < m + n - 1; i++) C[i] = (int)round(creal(fa[i]));
+
+    free(fa);
+    free(fb);
+}
+
+int main() {
+    int m, n, i;
+
+    printf("Enter length of A: ");
+    scanf("%d", &m);
+    printf("Enter length of B: ");
     scanf("%d", &n);
 
-    int a[n];
+    int *A = (int*)malloc(m * sizeof(int));
+    int *B = (int*)malloc(n * sizeof(int));
+    int *C = (int*)malloc((m + n - 1) * sizeof(int));
 
-    FILE *fp;
+    printf("Enter %d elements of A:\n", m);
+    for(i = 0; i < m; i++) scanf("%d", &A[i]);
 
-    srand(time(NULL));
+    printf("Enter %d elements of B:\n", n);
+    for(i = 0; i < n; i++) scanf("%d", &B[i]);
 
-    fp = fopen("random.txt", "w");
+    convolution(A, m, B, n, C);
 
-    if (fp == NULL)
-    {
-        printf("File cannot be opened.\n");
-        return 1;
+    printf("Convolution result:\n");
+    for(i = 0; i < m + n - 1; i++) {
+        printf("%d ", C[i]);
     }
+    printf("\n");
 
-    printf("Random elements:\n");
-
-    for (int i = 0; i < n; i++)
-    {
-        a[i] = rand() % 1000;
-
-        fprintf(fp, "%d ", a[i]);
-
-        printf("%d ", a[i]);
-    }
-
-    fclose(fp);
-
-    fp = fopen("random.txt", "r");
-
-    if (fp == NULL)
-    {
-        printf("File cannot be opened.\n");
-        return 1;
-    }
-
-    for (int i = 0; i < n; i++)
-        fscanf(fp, "%d", &a[i]);
-
-    fclose(fp);
-
-    heapSort(a, n);
-
-    printf("\n\nSorted elements:\n");
-
-    for (int i = 0; i < n; i++)
-        printf("%d ", a[i]);
+    free(A);
+    free(B);
+    free(C);
 
     return 0;
 }
