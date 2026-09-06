@@ -1,73 +1,60 @@
 #include <stdio.h>
 
-void swap(int *a, int *b)
+int max(int a, int b)
 {
-    int temp = *a;
-    *a = *b;
-    *b = temp;
-}
-
-int partition(int a[], int low, int high)
-{
-    int pivot = a[high];
-    int i = low - 1;
-
-    for (int j = low; j < high; j++)
-    {
-        if (a[j] <= pivot)
-        {
-            i++;
-            swap(&a[i], &a[j]);
-        }
-    }
-
-    swap(&a[i + 1], &a[high]);
-
-    return i + 1;
-}
-
-int quickSelect(int a[], int low, int high, int k)
-{
-    if (low == high)
-        return a[low];
-
-    int p = partition(a, low, high);
-
-    if (p == k)
-        return a[p];
-
-    if (k < p)
-        return quickSelect(a, low, p - 1, k);
-
-    return quickSelect(a, p + 1, high, k);
+    return (a > b) ? a : b;
 }
 
 int main()
 {
-    int n, k;
+    int n, W;
 
-    printf("Enter number of elements: ");
+    printf("Enter number of items: ");
     scanf("%d", &n);
 
-    int a[n];
+    int weight[n];
+    int profit[n];
 
-    printf("Enter elements:\n");
-
+    printf("Enter weights:\n");
     for (int i = 0; i < n; i++)
-        scanf("%d", &a[i]);
-
-    printf("Enter K: ");
-    scanf("%d", &k);
-
-    if (k < 1 || k > n)
     {
-        printf("Invalid K\n");
-        return 0;
+        scanf("%d", &weight[i]);
     }
 
-    int answer = quickSelect(a, 0, n - 1, k - 1);
+    printf("Enter profits:\n");
+    for (int i = 0; i < n; i++)
+    {
+        scanf("%d", &profit[i]);
+    }
 
-    printf("%dth smallest element = %d\n", k, answer);
+    printf("Enter capacity of knapsack: ");
+    scanf("%d", &W);
+
+    int dp[n + 1][W + 1];
+
+    for (int i = 0; i <= n; i++)
+    {
+        for (int w = 0; w <= W; w++)
+        {
+            if (i == 0 || w == 0)
+            {
+                dp[i][w] = 0;
+            }
+            else if (weight[i - 1] <= w)
+            {
+                dp[i][w] = max(
+                    dp[i - 1][w],
+                    profit[i - 1] + dp[i - 1][w - weight[i - 1]]
+                );
+            }
+            else
+            {
+                dp[i][w] = dp[i - 1][w];
+            }
+        }
+    }
+
+    printf("Maximum Profit = %d\n", dp[n][W]);
 
     return 0;
 }

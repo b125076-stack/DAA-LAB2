@@ -1,97 +1,79 @@
+
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+#include <string.h>
 
-void swap(int *a, int *b)
+int max(int a, int b)
 {
-    int temp = *a;
-    *a = *b;
-    *b = temp;
-}
-
-int partition(int a[], int low, int high)
-{
-    int pivot = a[high];
-    int i = low - 1;
-
-    for (int j = low; j < high; j++)
-    {
-        if (a[j] <= pivot)
-        {
-            i++;
-            swap(&a[i], &a[j]);
-        }
-    }
-
-    swap(&a[i + 1], &a[high]);
-
-    return i + 1;
-}
-
-void quickSort(int a[], int low, int high)
-{
-    if (low < high)
-    {
-        int p = partition(a, low, high);
-
-        quickSort(a, low, p - 1);
-        quickSort(a, p + 1, high);
-    }
+    return (a > b) ? a : b;
 }
 
 int main()
 {
-    int n;
+    char X[100], Y[100];
+    int m, n;
+    int i, j;
 
-    printf("Enter number of elements: ");
-    scanf("%d", &n);
+    printf("Enter first string: ");
+    scanf("%s", X);
 
-    int a[n];
+    printf("Enter second string: ");
+    scanf("%s", Y);
 
-    FILE *fp;
+    m = strlen(X);
+    n = strlen(Y);
 
-    srand(time(NULL));
+    int dp[m + 1][n + 1];
 
-    fp = fopen("random.txt", "w");
-
-    if (fp == NULL)
+    
+    for (i = 0; i <= m; i++)
     {
-        printf("File cannot be opened.\n");
-        return 1;
+        for (j = 0; j <= n; j++)
+        {
+            if (i == 0 || j == 0)
+            {
+                dp[i][j] = 0;
+            }
+            else if (X[i - 1] == Y[j - 1])
+            {
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+            }
+            else
+            {
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+            }
+        }
     }
 
-    printf("Random elements:\n");
+    printf("\nLength of LCS = %d\n", dp[m][n]);
 
-    for (int i = 0; i < n; i++)
+    int length = dp[m][n];
+    char lcs[length + 1];
+
+    lcs[length] = '\0';
+
+    i = m;
+    j = n;
+
+    while (i > 0 && j > 0)
     {
-        a[i] = rand() % 1000;
-
-        fprintf(fp, "%d ", a[i]);
-
-        printf("%d ", a[i]);
+        if (X[i - 1] == Y[j - 1])
+        {
+            lcs[length - 1] = X[i - 1];
+            i--;
+            j--;
+            length--;
+        }
+        else if (dp[i - 1][j] > dp[i][j - 1])
+        {
+            i--;
+        }
+        else
+        {
+            j--;
+        }
     }
 
-    fclose(fp);
-
-    fp = fopen("random.txt", "r");
-
-    if (fp == NULL)
-    {
-        printf("File cannot be opened.\n");
-        return 1;
-    }
-
-    for (int i = 0; i < n; i++)
-        fscanf(fp, "%d", &a[i]);
-
-    fclose(fp);
-
-    quickSort(a, 0, n - 1);
-
-    printf("\n\nSorted elements:\n");
-
-    for (int i = 0; i < n; i++)
-        printf("%d ", a[i]);
+    printf("Longest Common Subsequence = %s\n", lcs);
 
     return 0;
 }

@@ -1,80 +1,29 @@
-#include <stdio.h>
+#include<stdio.h>
+int main()
+{
+    int n ;
+    printf(" Enter n: ");
+    scanf("%d",&n);
 
-int binarySearch(int arr[], int n, int x) {
-    int low = 0, high = n - 1, steps = 0;
+    int dp[n+1];
 
-    while (low <= high) {
-        steps++;
-        int mid = (low + high) / 2;
+    if(n==0){
+       printf(" Fibonacci number =0\n ");
+       return 0;
 
-        if (arr[mid] == x) {
-            printf("Binary Search: Found at index %d\n", mid);
-            printf("Binary Search Steps: %d\n", steps);
-            return 1;
-        }
-
-        if (x < arr[mid])
-            high = mid - 1;
-        else
-            low = mid + 1;
     }
 
-    printf("Binary Search: Not Found\n");
-    printf("Binary Search Steps: %d\n", steps);
-    return 0;
-}
+    dp[0]=0;
+    dp[1]=1;
 
-int ternarySearch(int arr[], int n, int x) {
-    int low = 0, high = n - 1, steps = 0;
+    for(int i=2 ; i<=n; i++)
+    {
+        dp[i]=dp[i-1]+ dp[i-2];
 
-    while (low <= high) {
-        steps++;
-        int mid1 = low + (high - low) / 3;
-        int mid2 = high - (high - low) / 3;
-
-        if (arr[mid1] == x) {
-            printf("Ternary Search: Found at index %d\n", mid1);
-            printf("Ternary Search Steps: %d\n", steps);
-            return 1;
         }
+        printf(" fibonacci number = %d\n ", dp[n]);
 
-        if (arr[mid2] == x) {
-            printf("Ternary Search: Found at index %d\n", mid2);
-            printf("Ternary Search Steps: %d\n", steps);
-            return 1;
-        }
 
-        if (x < arr[mid1])
-            high = mid1 - 1;
-        else if (x > arr[mid2])
-            low = mid2 + 1;
-        else {
-            low = mid1 + 1;
-            high = mid2 - 1;
-        }
-    }
-
-    printf("Ternary Search: Not Found\n");
-    printf("Ternary Search Steps: %d\n", steps);
-    return 0;
-}
-
-int main() {
-    int n, x;
-
-    printf("Enter number of elements: ");
-    scanf("%d", &n);
-
-    int arr[n];
-    printf("Enter sorted elements:\n");
-    for (int i = 0; i < n; i++)
-        scanf("%d", &arr[i]);
-
-    printf("Enter element to search: ");
-    scanf("%d", &x);
-
-    binarySearch(arr, n, x);
-    ternarySearch(arr, n, x);
 
     return 0;
 }
